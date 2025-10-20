@@ -39,7 +39,7 @@
 //!     println!("Frequency: {}, Clarity: {}", pitch.frequency, pitch.clarity);
 //! }
 //! ```
-
+#![allow(clippy::needless_doctest_main)]
 pub use detector::internals::Pitch;
 
 pub mod detector;

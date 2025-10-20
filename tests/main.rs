@@ -6,9 +6,6 @@ use pitch_detection::detector::{autocorrelation::AutocorrelationDetector, yin::Y
 use pitch_detection::float::Float;
 use pitch_detection::utils::buffer::new_real_buffer;
 
-// For reading in `.wav` files
-use hound;
-
 #[derive(Debug)]
 struct Signal<T> {
     sample_rate: usize,
@@ -153,12 +150,10 @@ fn get_chunk<T: Float>(signal: &[T], start: usize, window: usize, output: &mut [
         false => signal.len(),
     };
 
-    for i in 0..stop - start {
-        output[i] = signal[start + i];
-    }
+    output[..(stop - start)].copy_from_slice(&signal[start..((stop - start) + start)]);
 
-    for i in stop - start..output.len() {
-        output[i] = T::zero();
+    for o in output.iter_mut().skip(stop - start) {
+        *o = T::zero();
     }
 }
 
@@ -195,10 +190,10 @@ fn sin_wave<T: Float>(freq: f64, size: usize, sample_rate: usize) -> Vec<T> {
     let mut signal = new_real_buffer(size);
     let two_pi = 2.0 * std::f64::consts::PI;
     let dx = two_pi * freq / sample_rate as f64;
-    for i in 0..size {
+    for (i, s) in signal.iter_mut().enumerate().take(size) {
         let x = i as f64 * dx;
         let y = x.sin();
-        signal[i] = T::from(y).unwrap();
+        *s = T::from(y).unwrap();
     }
     signal
 }
@@ -207,14 +202,14 @@ fn square_wave<T: Float>(freq: f64, size: usize, sample_rate: usize) -> Vec<T> {
     let mut signal = new_real_buffer(size);
     let period = sample_rate as f64 / freq;
 
-    for i in 0..size {
+    for (i, s) in signal.iter_mut().enumerate().take(size) {
         let x = i as f64 / period;
         let frac = x - x.floor();
         let y = match frac >= 0.5 {
             true => -1.0,
             false => 1.0,
         };
-        signal[i] = T::from(y).unwrap();
+        *s = T::from(y).unwrap();
     }
     signal
 }
@@ -223,16 +218,16 @@ fn triangle_wave<T: Float>(freq: f64, size: usize, sample_rate: usize) -> Vec<T>
     let mut signal = new_real_buffer(size);
     let period = sample_rate as f64 / freq;
 
-    for i in 0..size {
+    for (i, s) in signal.iter_mut().enumerate().take(size) {
         let x = i as f64 / period;
         let frac = x - x.floor();
         let y = match frac {
-            f if f >= 0. && f < 0.25 => 4. * f,
-            f if f >= 0.25 && f < 0.75 => 1. - 4. * (f - 0.25),
-            f if f >= 0.75 && f < 1. => -1. + 4. * (f - 0.75),
+            f if (0. ..0.25).contains(&f) => 4. * f,
+            f if (0.25..0.75).contains(&f) => 1. - 4. * (f - 0.25),
+            f if (0.75..1.9).contains(&f) => -1. + 4. * (f - 0.75),
             _ => panic!("Should be between 0 and 1"),
         };
-        signal[i] = T::from(y).unwrap();
+        *s = T::from(y).unwrap();
     }
     signal
 }
@@ -241,31 +236,25 @@ fn saw_wave<T: Float>(freq: f64, size: usize, sample_rate: usize) -> Vec<T> {
     let mut signal = new_real_buffer(size);
     let period = sample_rate as f64 / freq;
 
-    for i in 0..size {
+    for (i, s) in signal.iter_mut().enumerate().take(size) {
         let x = i as f64 / period;
         let frac = x - x.floor();
         let y = match frac {
-            f if f >= 0. && f < 0.25 => 4. * f,
-            f if f >= 0.25 && f < 0.75 => -1. + 4. * (f - 0.25),
-            f if f >= 0.75 && f < 1. => -1. + 4. * (f - 0.75),
+            f if (0.0..0.25).contains(&f) => 4. * f,
+            f if (0.25..0.75).contains(&f) => -1. + 4. * (f - 0.25),
+            f if (0.75..1.).contains(&f) => -1. + 4. * (f - 0.75),
             _ => panic!("Should be between 0 and 1"),
         };
-        signal[i] = T::from(y).unwrap();
+        *s = T::from(y).unwrap();
     }
     signal
 }
 
 fn detector_factory(name: String, window: usize, padding: usize) -> Box<dyn PitchDetector<f64>> {
     match name.as_ref() {
-        "McLeod" => {
-            return Box::new(McLeodDetector::<f64>::new(window, padding));
-        }
-        "Autocorrelation" => {
-            return Box::new(AutocorrelationDetector::<f64>::new(window, padding));
-        }
-        "YIN" => {
-            return Box::new(YINDetector::<f64>::new(window, padding));
-        }
+        "McLeod" => Box::new(McLeodDetector::<f64>::new(window, padding)),
+        "Autocorrelation" => Box::new(AutocorrelationDetector::<f64>::new(window, padding)),
+        "YIN" => Box::new(YINDetector::<f64>::new(window, padding)),
         _ => {
             panic!("Unknown detector {}", name);
         }
@@ -274,18 +263,10 @@ fn detector_factory(name: String, window: usize, padding: usize) -> Box<dyn Pitc
 
 fn signal_factory<T: Float>(name: String, freq: f64, size: usize, sample_rate: usize) -> Vec<T> {
     match name.as_ref() {
-        "sin" => {
-            return sin_wave(freq, size, sample_rate);
-        }
-        "square" => {
-            return square_wave(freq, size, sample_rate);
-        }
-        "triangle" => {
-            return triangle_wave(freq, size, sample_rate);
-        }
-        "saw" => {
-            return saw_wave(freq, size, sample_rate);
-        }
+        "sin" => sin_wave(freq, size, sample_rate),
+        "square" => square_wave(freq, size, sample_rate),
+        "triangle" => triangle_wave(freq, size, sample_rate),
+        "saw" => saw_wave(freq, size, sample_rate),
         _ => {
             panic!("Unknown wave function {}", name);
         }
@@ -329,7 +310,7 @@ fn pure_frequency(detector_name: String, wave_name: String, freq_in: f64) {
             }
             None => {
                 println!("No peaks accepted.");
-                assert!(false);
+                panic!();
             }
         }
     }
@@ -372,7 +353,7 @@ fn raw_frequency(detector_name: String, signal: Signal<f64>, freq_in: f64) {
             }
             None => {
                 println!("No peaks accepted.");
-                assert!(false);
+                panic![];
             }
         }
     }

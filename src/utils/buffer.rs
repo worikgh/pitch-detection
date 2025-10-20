@@ -64,8 +64,8 @@ pub fn copy_complex_to_real<T: Float>(
 
 /// Computes |x|^2 for each complex value x in `arr`. This function
 /// modifies `arr` in place and leaves the complex component zero.
-pub fn modulus_squared<'a, T: Float>(arr: &'a mut [Complex<T>]) {
-    for mut s in arr {
+pub fn modulus_squared<T: Float>(arr: &mut [Complex<T>]) {
+    for s in arr {
         s.re = s.re * s.re + s.im * s.im;
         s.im = T::zero();
     }
@@ -132,14 +132,14 @@ impl<T: Float> BufferPool<T> {
             .push(Rc::new(RefCell::new(new_real_buffer::<T>(
                 self.buffer_size,
             ))));
-        Rc::clone(&self.real_buffers.last().unwrap())
+        Rc::clone(self.real_buffers.last().unwrap())
     }
     fn add_complex_buffer(&mut self) -> Rc<RefCell<Vec<Complex<T>>>> {
         self.complex_buffers
             .push(Rc::new(RefCell::new(new_complex_buffer::<T>(
                 self.buffer_size,
             ))));
-        Rc::clone(&self.complex_buffers.last().unwrap())
+        Rc::clone(self.complex_buffers.last().unwrap())
     }
     /// Get a reference to a buffer that can e used until it is `Drop`ed. Call
     /// `.borrow_mut()` to get a reference to a mutable version of the buffer.
@@ -148,7 +148,7 @@ impl<T: Float> BufferPool<T> {
             .iter()
             // If the Rc count is 1, we haven't loaned the buffer out yet.
             .find(|&buf| Rc::strong_count(buf) == 1)
-            .map(|buf| Rc::clone(buf))
+            .map(Rc::clone)
             // If we haven't found a buffer we can reuse, create one.
             .unwrap_or_else(|| self.add_real_buffer())
     }
@@ -159,7 +159,7 @@ impl<T: Float> BufferPool<T> {
             .iter()
             // If the Rc count is 1, we haven't loaned the buffer out yet.
             .find(|&buf| Rc::strong_count(buf) == 1)
-            .map(|buf| Rc::clone(buf))
+            .map(Rc::clone)
             // If we haven't found a buffer we can reuse, create one.
             .unwrap_or_else(|| self.add_complex_buffer())
     }

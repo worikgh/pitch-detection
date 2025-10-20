@@ -11,7 +11,6 @@ use pitch_detection::{
 
 pub fn utils_benchmark(c: &mut Criterion) {
     let v = (0..1024)
-        .into_iter()
         .map(|v| ((v as f64) / PI / 30.).sin())
         .collect::<Vec<f64>>();
     let vv = v.as_slice();
