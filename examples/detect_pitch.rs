@@ -16,12 +16,12 @@ fn main() {
 
         // : >+5.2:
         //     >: Aligns the output to the right.
-        //     +: Shows the sign (plus for positive values and minus for negative values).
+        //     -: Shows a minus sign for negative values
         //     6: Minimum width of the output, including the sign and decimal point.
         //     .2: Specifies that there should be two digits after the decimal point.
 
         println!(
-            "Pitch Detection: Note: {} Octave: {}  cents: {: >+6.2} clarity: {: >+6.2}",
+            "Pitch Detection: Note: {} Octave: {}  cents: {: >-6.2} clarity: {:0.2}",
             ndr.note_name, ndr.octave, ndr.cents, ndr.clarity,
         );
     }
