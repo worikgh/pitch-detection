@@ -44,4 +44,6 @@ pub use detector::internals::Pitch;
 
 pub mod detector;
 pub mod float;
+pub mod note_detection_result;
+pub mod runner;
 pub mod utils;
