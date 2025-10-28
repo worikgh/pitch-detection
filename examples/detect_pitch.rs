@@ -1,10 +1,23 @@
 use pitch_detection::note_detection_result::NoteDetectionResult;
-use pitch_detection::runner::pitch_detection_run;
+use pitch_detection::runner::{pitch_detection_run, Detector, DetectorCfg};
 use std::sync::mpsc;
 
 fn main() {
+    // Make a client to do detecting
+    let (client, _status) =
+        jack::Client::new("qzn3t_detect_pitch", jack::ClientOptions::NO_START_SERVER).unwrap();
     let (tx, rx) = mpsc::channel::<NoteDetectionResult>();
-    let jh = pitch_detection_run(tx, "system:capture_1");
+    let detector_cfg = DetectorCfg {
+        sample_rate: client.sample_rate(),
+        size: 10240,
+        padding: 512,
+        power_threshold: 5.0,
+        clarity_threshold: 0.7,
+        detector: Detector::McLeod,
+        sample_size: 10240,
+    };
+
+    let jh = pitch_detection_run(tx, "system:capture_1", detector_cfg, client);
     loop {
         let ndr = match rx.recv() {
             Ok(ndr) => ndr,

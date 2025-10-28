@@ -2,7 +2,9 @@
 //! a Jackd AudioIn pipe, samples audio from it, and then sends
 //! analysis of the audio in the form of `NoteDetectionResult` through
 //! the first argument.  See the [example](../examples/detect_note.rs)
+use crate::detector::autocorrelation::AutocorrelationDetector;
 use crate::detector::mcleod::McLeodDetector;
+use crate::detector::yin::YINDetector;
 use crate::detector::PitchDetector;
 use crate::note_detection_result::NoteDetectionResult;
 use crate::Pitch;
@@ -14,7 +16,6 @@ use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
 const RING_BUFFER_CAPACITY: usize = 2_048_000;
-const SAMPLE_SIZE: usize = 10240;
 const SLEEP_MS: u64 = 300;
 
 /// Handle Jackd notifications.
@@ -58,18 +59,25 @@ impl ProcessHandler for JackProcessHandlerRB {
 }
 
 /// The meta data the detector needs
+pub enum Detector {
+    McLeod,
+    AutoCorrelation,
+    Yin,
+}
 pub struct DetectorCfg<T> {
-    sample_rate: usize,
-    size: usize,
-    padding: usize,
-    power_threshold: T,
-    clarity_threshold: T,
+    pub sample_rate: usize,
+    pub size: usize,
+    pub padding: usize,
+    pub power_threshold: T,
+    pub clarity_threshold: T,
+    pub detector: Detector,
+    pub sample_size: usize,
 }
 
 /// Get the pitch
-fn my_get_pitch<T: crate::float::Float, U: PitchDetector<T>>(
+fn my_get_pitch<T: crate::float::Float>(
     signal: &[T],
-    detector: &mut U,
+    detector: &mut dyn PitchDetector<T>,
     cfg: &DetectorCfg<T>,
 ) -> Option<Pitch<T>> {
     detector.get_pitch(
@@ -82,23 +90,15 @@ fn my_get_pitch<T: crate::float::Float, U: PitchDetector<T>>(
 
 /// Get data from a jack port and analyze its pitch.  Send pitch data,
 /// continuously, to `sender`
-pub fn pitch_detection_run(
+pub fn pitch_detection_run<T>(
     sender: mpsc::Sender<NoteDetectionResult>,
     input: &str,
-) -> JoinHandle<()> {
-    // Get Jack client
-    let (client, _status) =
-        jack::Client::new("qzn3t_detect_pitch", jack::ClientOptions::NO_START_SERVER).unwrap();
-    let sample_rate = client.sample_rate();
-    let sample_size = SAMPLE_SIZE; // The number of samples to send to the detector
-    let detector_cfg = DetectorCfg {
-        sample_rate,
-        size: sample_size,
-        padding: 1024 / 2,
-        power_threshold: 5.0,
-        clarity_threshold: 0.7,
-    };
-
+    detector_cfg: DetectorCfg<T>,
+    client: Client,
+) -> JoinHandle<()>
+where
+    T: crate::float::Float + Into<f32> + From<f32> + std::iter::Sum,
+{
     let connect_port = input.to_string();
     thread::spawn(move || {
         // Create ring buffer with specified capacity
@@ -133,23 +133,32 @@ pub fn pitch_detection_run(
         }
 
         let sleep_ms = SLEEP_MS;
-        let mut detector = McLeodDetector::new(detector_cfg.size, detector_cfg.padding);
+        let mut detector: Box<dyn PitchDetector<T>> = match detector_cfg.detector {
+            Detector::McLeod => {
+                Box::new(McLeodDetector::new(detector_cfg.size, detector_cfg.padding))
+            }
+            Detector::AutoCorrelation => Box::new(AutocorrelationDetector::new(
+                detector_cfg.size,
+                detector_cfg.padding,
+            )),
+            Detector::Yin => Box::new(YINDetector::new(detector_cfg.size, detector_cfg.padding)),
+        };
 
-        let mut samples = Vec::with_capacity(sample_size);
+        let mut samples = Vec::with_capacity(detector_cfg.sample_size);
         loop {
             let sample_interval = Duration::from_millis(sleep_ms);
             thread::sleep(sample_interval);
 
             // Get available samples from the ring buffer
-            samples.resize(sample_size, 0.0);
+            samples.resize(detector_cfg.sample_size, 0.0);
             let mut rb_guard = ring_buffer.lock().unwrap();
             let available = (*rb_guard).occupied_len();
-            if available < sample_size {
+            if available < detector_cfg.sample_size {
                 continue;
             }
             let sz_popped = (*rb_guard).pop_slice(&mut samples);
-            if sz_popped != sample_size {
-                eprintln!("Error pitch_detector: There were {sz_popped} bytes popped from ring buffer.  There should have been {sample_size}.  Available is: {available}");
+            if sz_popped != detector_cfg.sample_size {
+                eprintln!("Error pitch_detector: There were {sz_popped} bytes popped from ring buffer.  There should have been {}.  Available is: {available}", detector_cfg.sample_size);
                 continue;
             }
 
@@ -159,12 +168,14 @@ pub fn pitch_detection_run(
 
             // Do the deed with the samples from Jack and send the
             // result back to the caller
-            let pitch = my_get_pitch(&samples, &mut detector, &detector_cfg);
+            let converted_samples: Vec<T> = samples.iter().map(|&x| x.into()).collect();
+            let pitch = my_get_pitch(&converted_samples, &mut *detector, &detector_cfg);
+
             if let Some(pitch) = pitch {
                 let freq = pitch.frequency;
                 let clarity = pitch.clarity;
                 let ndr: NoteDetectionResult =
-                    match NoteDetectionResult::from_freq_clarity(freq, clarity) {
+                    match NoteDetectionResult::from_freq_clarity(freq.into(), clarity.into()) {
                         Ok(ndr) => ndr,
                         Err(err) => {
                             eprintln!("Error pitch-detection: {err}");
