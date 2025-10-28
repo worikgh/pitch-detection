@@ -1,10 +1,10 @@
 use pitch_detection::note_detection_result::NoteDetectionResult;
-use pitch_detection::runner::run;
+use pitch_detection::runner::pitch_detection_run;
 use std::sync::mpsc;
 
 fn main() {
     let (tx, rx) = mpsc::channel::<NoteDetectionResult>();
-    let jh = run(tx, "system:capture_1");
+    let jh = pitch_detection_run(tx, "system:capture_1");
     loop {
         let ndr = match rx.recv() {
             Ok(ndr) => ndr,

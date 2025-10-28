@@ -82,7 +82,10 @@ fn my_get_pitch<T: crate::float::Float, U: PitchDetector<T>>(
 
 /// Get data from a jack port and analyze its pitch.  Send pitch data,
 /// continuously, to `sender`
-pub fn run(sender: mpsc::Sender<NoteDetectionResult>, input: &str) -> JoinHandle<()> {
+pub fn pitch_detection_run(
+    sender: mpsc::Sender<NoteDetectionResult>,
+    input: &str,
+) -> JoinHandle<()> {
     // Get Jack client
     let (client, _status) =
         jack::Client::new("qzn3t_detect_pitch", jack::ClientOptions::NO_START_SERVER).unwrap();
