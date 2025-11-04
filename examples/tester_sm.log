@@ -1,0 +1,419 @@
+Detector Configuration:  1024  512  0.100  0.300 McLeod
+Test case   1 E/2  0.000 examples/data/E2_0.raw
+Result:   1 E/E 2/2  0.000/-4.115
+Result:   1 E/E 2/2  0.000/7.524
+Result:   1 E/E 2/2  0.000/2.104
+Result:   1 E/E 2/2  0.000/-0.960
+Result:   1 E/E 2/2  0.000/-4.884
+Result:   1 E/E 2/3  0.000/-40.515
+Result:   1 E/E 2/2  0.000/26.699
+Result:   1 E/E 2/2  0.000/5.180
+Result:   1 E/G# 2/3  0.000/36.042
+Result:   1 E/A# 2/3  0.000/12.232
+Result:   1 E/E 2/3  0.000/36.847
+Result:   1 E/E 2/2  0.000/-4.275
+Result:   1 E/E 2/2  0.000/7.446
+Test case   2 A/2  0.000 examples/data/A2_0.raw
+Result:   2 A/A 2/3  0.000/3.302
+Result:   2 A/A# 2/4  0.000/-7.392
+Result:   2 A/A 2/2  0.000/2.802
+Result:   2 A/A 2/2  0.000/-1.434
+Result:   2 A/E 2/4  0.000/-7.260
+Result:   2 A/B 2/5  0.000/3.657
+Result:   2 A/C 2/5  0.000/-16.506
+Result:   2 A/G# 2/4  0.000/41.723
+Result:   2 A/A 2/2  0.000/1.607
+Result:   2 A/A 2/2  0.000/-0.843
+Result:   2 A/A 2/3  0.000/2.894
+Result:   2 A/A 2/3  0.000/-1.615
+Result:   2 A/A 2/2  0.000/1.645
+Test case   3 D/3  0.000 examples/data/D3_0.raw
+Result:   3 D/D 3/3  0.000/-4.495
+Result:   3 D/F# 3/5  0.000/19.831
+Result:   3 D/D 3/4  0.000/-43.925
+Result:   3 D/D 3/3  0.000/-3.294
+Result:   3 D/D 3/3  0.000/-2.928
+Result:   3 D/D 3/3  0.000/-0.399
+Result:   3 D/D 3/3  0.000/0.999
+Result:   3 D/F 3/5  0.000/24.579
+Result:   3 D/D 3/4  0.000/-25.180
+Result:   3 D/D 3/3  0.000/-4.229
+Result:   3 D/F 3/5  0.000/-31.914
+Result:   3 D/D 3/3  0.000/-2.261
+Result:   3 D/D 3/3  0.000/-3.294
+Test case   4 G/3  0.000 examples/data/G3_0.raw
+Result:   4 G/G 3/3  0.000/9.694
+Result:   4 G/C# 3/5  0.000/-46.390
+Result:   4 G/G 3/3  0.000/1.562
+Result:   4 G/D 3/5  0.000/-4.417
+Result:   4 G/G 3/3  0.000/4.192
+Result:   4 G/C# 3/5  0.000/-39.867
+Result:   4 G/G 3/3  0.000/5.782
+Result:   4 G/C# 3/5  0.000/21.926
+Result:   4 G/G 3/3  0.000/7.290
+Result:   4 G/G# 3/4  0.000/34.292
+Result:   4 G/D 3/5  0.000/33.517
+Result:   4 G/A 3/5  0.000/-12.128
+Result:   4 G/D# 3/5  0.000/-36.922
+Result:   4 G/B 3/5  0.000/-25.063
+Test case   5 B/3  0.000 examples/data/B3_0.raw
+Result:   5 B/B 3/4  0.000/8.949
+Result:   5 B/B 3/4  0.000/7.413
+Result:   5 B/B 3/4  0.000/12.765
+Result:   5 B/B 3/3  0.000/-3.928
+Result:   5 B/B 3/3  0.000/-17.367
+Result:   5 B/B 3/4  0.000/0.694
+Result:   5 B/B 3/4  0.000/11.446
+Result:   5 B/B 3/4  0.000/8.829
+Result:   5 B/B 3/4  0.000/12.655
+Result:   5 B/B 3/4  0.000/8.893
+Result:   5 B/B 3/4  0.000/6.038
+Result:   5 B/B 3/4  0.000/8.285
+Result:   5 B/B 3/4  0.000/11.283
+Result:   5 B/B 3/3  0.000/-0.998
+Test case   6 E/4  0.000 examples/data/E4_0.raw
+Result:   6 E/G 4/5  0.000/9.712
+Result:   6 E/E 4/4  0.000/0.858
+Result:   6 E/G 4/5  0.000/49.835
+Result:   6 E/E 4/4  0.000/-11.162
+Result:   6 E/E 4/4  0.000/-6.562
+Result:   6 E/E 4/4  0.000/-1.336
+Result:   6 E/E 4/4  0.000/-1.125
+Result:   6 E/E 4/4  0.000/-5.876
+Result:   6 E/G 4/5  0.000/-49.729
+Result:   6 E/G 4/5  0.000/24.759
+Result:   6 E/E 4/4  0.000/12.838
+Result:   6 E/E 4/4  0.000/-16.631
+Result:   6 E/E 4/4  0.000/-2.569
+Result:   6 E/E 4/4  0.000/-4.035
+Detector Configuration:  1024  512  0.100  0.500 McLeod
+Test case   1 E/2  0.000 examples/data/E2_0.raw
+Result:   1 E/F 2/3  0.000/-32.923
+Result:   1 E/E 2/2  0.000/5.879
+Test case   2 A/2  0.000 examples/data/A2_0.raw
+Result:   2 A/A 2/2  0.000/0.913
+Result:   2 A/A 2/2  0.000/5.146
+Result:   2 A/A 2/2  0.000/1.839
+Result:   2 A/A 2/2  0.000/3.622
+Result:   2 A/A 2/2  0.000/0.179
+Result:   2 A/E 2/4  0.000/13.196
+Result:   2 A/A 2/2  0.000/1.862
+Result:   2 A/A 2/2  0.000/-2.511
+Result:   2 A/A 2/2  0.000/7.765
+Result:   2 A/A 2/2  0.000/0.896
+Result:   2 A/A 2/2  0.000/0.085
+Result:   2 A/A 2/2  0.000/3.384
+Result:   2 A/A 2/2  0.000/1.438
+Test case   3 D/3  0.000 examples/data/D3_0.raw
+Result:   3 D/D 3/3  0.000/-2.369
+Result:   3 D/D 3/3  0.000/1.133
+Result:   3 D/D 3/3  0.000/-4.485
+Result:   3 D/D 3/3  0.000/-3.371
+Result:   3 D/D 3/4  0.000/-2.710
+Result:   3 D/D 3/3  0.000/-3.461
+Result:   3 D/D 3/3  0.000/4.667
+Result:   3 D/D 3/3  0.000/-0.256
+Result:   3 D/D 3/3  0.000/-3.005
+Result:   3 D/D 3/3  0.000/4.490
+Result:   3 D/D 3/3  0.000/-4.584
+Result:   3 D/D 3/3  0.000/-3.746
+Result:   3 D/D 3/3  0.000/-4.971
+Result:   3 D/D 3/3  0.000/-4.124
+Test case   4 G/3  0.000 examples/data/G3_0.raw
+Result:   4 G/G 3/3  0.000/5.188
+Result:   4 G/G 3/3  0.000/2.197
+Result:   4 G/G 3/3  0.000/9.107
+Result:   4 G/G 3/3  0.000/5.260
+Result:   4 G/G 3/3  0.000/0.632
+Result:   4 G/G 3/3  0.000/11.589
+Result:   4 G/G 3/3  0.000/2.376
+Result:   4 G/A 3/5  0.000/-48.700
+Result:   4 G/G 3/3  0.000/3.506
+Result:   4 G/B 3/6  0.000/30.615
+Result:   4 G/G 3/3  0.000/4.109
+Result:   4 G/G 3/3  0.000/8.021
+Test case   5 B/3  0.000 examples/data/B3_0.raw
+Result:   5 B/B 3/3  0.000/-27.597
+Result:   5 B/B 3/3  0.000/-0.616
+Result:   5 B/B 3/4  0.000/1.640
+Result:   5 B/B 3/4  0.000/1.206
+Result:   5 B/B 3/4  0.000/7.544
+Result:   5 B/B 3/3  0.000/-18.081
+Result:   5 B/B 3/3  0.000/-16.042
+Result:   5 B/B 3/4  0.000/9.928
+Result:   5 B/B 3/4  0.000/11.292
+Result:   5 B/B 3/4  0.000/10.190
+Result:   5 B/B 3/3  0.000/-20.258
+Result:   5 B/B 3/3  0.000/-10.638
+Result:   5 B/B 3/3  0.000/-4.428
+Result:   5 B/B 3/4  0.000/7.065
+Test case   6 E/4  0.000 examples/data/E4_0.raw
+Result:   6 E/E 4/4  0.000/1.630
+Result:   6 E/E 4/4  0.000/1.483
+Result:   6 E/E 4/4  0.000/-1.442
+Result:   6 E/E 4/4  0.000/2.310
+Result:   6 E/E 4/4  0.000/2.272
+Result:   6 E/G 4/5  0.000/15.380
+Result:   6 E/E 4/4  0.000/1.531
+Result:   6 E/E 4/4  0.000/1.623
+Result:   6 E/E 4/4  0.000/1.769
+Result:   6 E/E 4/4  0.000/-5.903
+Result:   6 E/C# 4/5  0.000/45.988
+Result:   6 E/E 4/4  0.000/1.583
+Result:   6 E/E 4/4  0.000/1.788
+Detector Configuration:  1024  512  0.100  0.900 McLeod
+Test case   1 E/2  0.000 examples/data/E2_0.raw
+Test case   2 A/2  0.000 examples/data/A2_0.raw
+Test case   3 D/3  0.000 examples/data/D3_0.raw
+Test case   4 G/3  0.000 examples/data/G3_0.raw
+Test case   5 B/3  0.000 examples/data/B3_0.raw
+Test case   6 E/4  0.000 examples/data/E4_0.raw
+Detector Configuration:  1024  512  1.000  0.300 McLeod
+Test case   1 E/2  0.000 examples/data/E2_0.raw
+Result:   1 E/E 2/2  0.000/2.822
+Result:   1 E/E 2/2  0.000/-4.318
+Result:   1 E/D# 2/3  0.000/39.223
+Result:   1 E/G 2/3  0.000/41.657
+Result:   1 E/A# 2/3  0.000/-34.167
+Result:   1 E/F 2/3  0.000/-21.225
+Result:   1 E/E 2/2  0.000/9.531
+Result:   1 E/C# 2/4  0.000/-27.353
+Result:   1 E/E 2/3  0.000/42.177
+Result:   1 E/E 2/2  0.000/-4.115
+Result:   1 E/E 2/2  0.000/7.524
+Result:   1 E/E 2/2  0.000/2.104
+Result:   1 E/E 2/2  0.000/-0.960
+Result:   1 E/E 2/2  0.000/-4.884
+Result:   1 E/E 2/3  0.000/-40.515
+Test case   2 A/2  0.000 examples/data/A2_0.raw
+Result:   2 A/E 2/3  0.000/40.779
+Result:   2 A/A# 2/4  0.000/-31.588
+Result:   2 A/C 2/5  0.000/-21.181
+Result:   2 A/A 2/4  0.000/13.683
+Result:   2 A/B 2/5  0.000/42.626
+Result:   2 A/A 2/2  0.000/4.122
+Result:   2 A/A 2/2  0.000/0.832
+Result:   2 A/A 2/2  0.000/4.530
+Result:   2 A/A 2/3  0.000/17.886
+Result:   2 A/E 2/5  0.000/33.976
+Result:   2 A/B 2/5  0.000/40.332
+Result:   2 A/A 2/2  0.000/-10.261
+Result:   2 A/A 2/4  0.000/7.809
+Result:   2 A/C 2/5  0.000/-14.556
+Test case   3 D/3  0.000 examples/data/D3_0.raw
+Result:   3 D/D 3/3  0.000/-2.928
+Result:   3 D/D 3/3  0.000/-0.399
+Result:   3 D/D 3/3  0.000/0.999
+Result:   3 D/F 3/5  0.000/24.579
+Result:   3 D/D 3/4  0.000/-25.180
+Result:   3 D/D 3/3  0.000/-4.229
+Result:   3 D/F 3/5  0.000/-31.914
+Result:   3 D/D 3/3  0.000/-2.261
+Result:   3 D/D 3/3  0.000/-3.294
+Result:   3 D/D 3/3  0.000/-2.928
+Result:   3 D/D 3/3  0.000/-0.399
+Result:   3 D/D 3/3  0.000/0.999
+Test case   4 G/3  0.000 examples/data/G3_0.raw
+Result:   4 G/A 3/5  0.000/28.451
+Result:   4 G/G 3/3  0.000/2.189
+Result:   4 G/C# 3/5  0.000/13.321
+Result:   4 G/G 3/3  0.000/3.512
+Result:   4 G/G 3/5  0.000/8.124
+Result:   4 G/G 3/3  0.000/5.540
+Result:   4 G/G 3/3  0.000/20.573
+Result:   4 G/C# 3/5  0.000/22.635
+Result:   4 G/G 3/3  0.000/3.163
+Result:   4 G/D# 3/5  0.000/-30.262
+Result:   4 G/G 3/3  0.000/3.919
+Result:   4 G/C# 3/5  0.000/-24.744
+Result:   4 G/G 3/3  0.000/4.147
+Result:   4 G/D 3/5  0.000/-46.422
+Test case   5 B/3  0.000 examples/data/B3_0.raw
+Result:   5 B/B 3/4  0.000/10.843
+Result:   5 B/B 3/4  0.000/13.272
+Result:   5 B/B 3/4  0.000/12.832
+Result:   5 B/B 3/4  0.000/10.943
+Result:   5 B/B 3/4  0.000/9.548
+Result:   5 B/B 3/4  0.000/10.696
+Result:   5 B/B 3/4  0.000/11.249
+Result:   5 B/B 3/4  0.000/9.405
+Result:   5 B/B 3/4  0.000/8.394
+Result:   5 B/B 3/4  0.000/10.926
+Result:   5 B/B 3/4  0.000/6.805
+Result:   5 B/C 3/4  0.000/26.123
+Result:   5 B/B 3/4  0.000/12.832
+Result:   5 B/B 3/4  0.000/10.484
+Test case   6 E/4  0.000 examples/data/E4_0.raw
+Result:   6 E/G 4/5  0.000/46.315
+Result:   6 E/E 4/4  0.000/-11.162
+Result:   6 E/E 4/4  0.000/-6.562
+Result:   6 E/E 4/4  0.000/-1.336
+Result:   6 E/E 4/4  0.000/-1.125
+Result:   6 E/E 4/4  0.000/-5.876
+Result:   6 E/G 4/5  0.000/-49.729
+Result:   6 E/G 4/5  0.000/24.759
+Result:   6 E/E 4/4  0.000/12.838
+Result:   6 E/E 4/4  0.000/-1.046
+Result:   6 E/E 4/4  0.000/3.194
+Result:   6 E/E 4/4  0.000/-4.035
+Result:   6 E/E 4/4  0.000/-1.021
+Result:   6 E/E 4/4  0.000/2.852
+Detector Configuration:  1024  512  1.000  0.500 McLeod
+Test case   1 E/2  0.000 examples/data/E2_0.raw
+Result:   1 E/F 2/3  0.000/-32.923
+Result:   1 E/E 2/2  0.000/5.879
+Test case   2 A/2  0.000 examples/data/A2_0.raw
+Result:   2 A/A 2/2  0.000/-0.157
+Result:   2 A/A 2/2  0.000/5.146
+Result:   2 A/A 2/2  0.000/1.839
+Result:   2 A/A 2/2  0.000/3.622
+Result:   2 A/A 2/2  0.000/0.179
+Result:   2 A/E 2/4  0.000/13.196
+Result:   2 A/A 2/2  0.000/1.862
+Result:   2 A/A 2/2  0.000/-2.511
+Result:   2 A/A 2/2  0.000/7.765
+Result:   2 A/A 2/2  0.000/0.896
+Result:   2 A/A 2/2  0.000/0.085
+Result:   2 A/A 2/2  0.000/3.384
+Result:   2 A/A 2/2  0.000/1.438
+Test case   3 D/3  0.000 examples/data/D3_0.raw
+Result:   3 D/D 3/3  0.000/-2.369
+Result:   3 D/D 3/3  0.000/1.133
+Result:   3 D/D 3/3  0.000/-4.485
+Result:   3 D/D 3/3  0.000/-3.371
+Result:   3 D/D 3/4  0.000/-2.710
+Result:   3 D/D 3/3  0.000/-3.461
+Result:   3 D/D 3/3  0.000/2.262
+Result:   3 D/D 3/3  0.000/-0.256
+Result:   3 D/D 3/3  0.000/-3.005
+Result:   3 D/D 3/3  0.000/4.490
+Result:   3 D/D 3/3  0.000/-4.584
+Result:   3 D/D 3/3  0.000/-3.746
+Result:   3 D/D 3/3  0.000/-4.971
+Result:   3 D/D 3/3  0.000/-4.124
+Test case   4 G/3  0.000 examples/data/G3_0.raw
+Result:   4 G/G 3/3  0.000/5.188
+Result:   4 G/G 3/3  0.000/2.197
+Result:   4 G/G 3/3  0.000/5.735
+Result:   4 G/G 3/3  0.000/5.260
+Result:   4 G/G 3/3  0.000/0.632
+Result:   4 G/G 3/3  0.000/11.589
+Result:   4 G/G 3/3  0.000/2.376
+Result:   4 G/A 3/5  0.000/-48.700
+Result:   4 G/G 3/3  0.000/3.506
+Result:   4 G/B 3/6  0.000/30.615
+Result:   4 G/G 3/3  0.000/2.702
+Result:   4 G/G 3/3  0.000/8.021
+Test case   5 B/3  0.000 examples/data/B3_0.raw
+Result:   5 B/B 3/3  0.000/-27.597
+Result:   5 B/B 3/3  0.000/-0.616
+Result:   5 B/B 3/4  0.000/1.640
+Result:   5 B/B 3/4  0.000/1.206
+Result:   5 B/B 3/4  0.000/7.544
+Result:   5 B/B 3/3  0.000/-18.081
+Result:   5 B/B 3/3  0.000/-16.042
+Result:   5 B/B 3/4  0.000/9.928
+Result:   5 B/B 3/4  0.000/10.650
+Result:   5 B/B 3/4  0.000/10.190
+Result:   5 B/B 3/3  0.000/-20.258
+Result:   5 B/B 3/3  0.000/-10.638
+Result:   5 B/B 3/3  0.000/-4.428
+Result:   5 B/B 3/4  0.000/7.065
+Test case   6 E/4  0.000 examples/data/E4_0.raw
+Result:   6 E/E 4/4  0.000/1.630
+Result:   6 E/E 4/4  0.000/1.483
+Result:   6 E/E 4/4  0.000/1.763
+Result:   6 E/E 4/4  0.000/0.950
+Result:   6 E/E 4/4  0.000/2.310
+Result:   6 E/E 4/4  0.000/2.272
+Result:   6 E/G 4/5  0.000/15.380
+Result:   6 E/E 4/4  0.000/1.531
+Result:   6 E/E 4/4  0.000/1.623
+Result:   6 E/E 4/4  0.000/1.769
+Result:   6 E/E 4/4  0.000/-5.903
+Result:   6 E/C# 4/5  0.000/45.988
+Result:   6 E/E 4/4  0.000/1.166
+Result:   6 E/E 4/4  0.000/1.510
+Detector Configuration:  1024  512 10.000  0.900 McLeod
+Test case   1 E/2  0.000 examples/data/E2_0.raw
+Test case   2 A/2  0.000 examples/data/A2_0.raw
+Test case   3 D/3  0.000 examples/data/D3_0.raw
+Test case   4 G/3  0.000 examples/data/G3_0.raw
+Test case   5 B/3  0.000 examples/data/B3_0.raw
+Test case   6 E/4  0.000 examples/data/E4_0.raw
+Detector Configuration:  1024  256  1.000  0.900 Yin
+Test case   1 E/2  0.000 examples/data/E2_0.raw
+Test case   2 A/2  0.000 examples/data/A2_0.raw
+Result:   2 A/A 2/2  0.000/1.619
+Result:   2 A/A 2/2  0.000/-0.506
+Result:   2 A/A 2/2  0.000/-1.279
+Result:   2 A/A 2/2  0.000/6.885
+Result:   2 A/A 2/2  0.000/-0.164
+Result:   2 A/A 2/2  0.000/1.332
+Result:   2 A/A 2/2  0.000/19.415
+Result:   2 A/A 2/2  0.000/-0.113
+Result:   2 A/A 2/2  0.000/0.711
+Result:   2 A/A 2/2  0.000/1.091
+Test case   3 D/3  0.000 examples/data/D3_0.raw
+Result:   3 D/D 3/3  0.000/-3.469
+Result:   3 D/D 3/3  0.000/6.790
+Result:   3 D/D 3/3  0.000/-4.456
+Result:   3 D/D 3/3  0.000/-1.085
+Result:   3 D/D 3/3  0.000/-3.933
+Result:   3 D/D 3/3  0.000/-2.327
+Result:   3 D/D 3/3  0.000/-4.848
+Result:   3 D/D 3/3  0.000/-4.364
+Result:   3 D/C# 3/4  0.000/46.695
+Result:   3 D/D 3/3  0.000/-3.243
+Result:   3 D/D 3/3  0.000/1.651
+Result:   3 D/D 3/3  0.000/-1.895
+Test case   4 G/3  0.000 examples/data/G3_0.raw
+Result:   4 G/G 3/3  0.000/3.025
+Result:   4 G/G 3/3  0.000/1.195
+Result:   4 G/G 3/3  0.000/-5.777
+Result:   4 G/G 3/3  0.000/1.286
+Result:   4 G/G 3/3  0.000/0.776
+Result:   4 G/G 3/3  0.000/6.082
+Result:   4 G/G 3/3  0.000/7.253
+Result:   4 G/G 3/3  0.000/5.162
+Result:   4 G/G 3/3  0.000/2.084
+Result:   4 G/G 3/3  0.000/0.687
+Result:   4 G/G 3/3  0.000/4.262
+Result:   4 G/G 3/3  0.000/2.333
+Test case   5 B/3  0.000 examples/data/B3_0.raw
+Result:   5 B/B 3/4  0.000/8.711
+Result:   5 B/B 3/4  0.000/11.035
+Result:   5 B/B 3/4  0.000/6.630
+Result:   5 B/B 3/4  0.000/14.043
+Result:   5 B/B 3/4  0.000/11.914
+Result:   5 B/B 3/4  0.000/10.100
+Result:   5 B/B 3/4  0.000/9.781
+Result:   5 B/B 3/4  0.000/12.140
+Result:   5 B/B 3/4  0.000/12.500
+Result:   5 B/B 3/4  0.000/10.467
+Result:   5 B/B 3/4  0.000/8.457
+Result:   5 B/B 3/4  0.000/11.144
+Result:   5 B/B 3/4  0.000/8.519
+Result:   5 B/B 3/4  0.000/11.377
+Test case   6 E/4  0.000 examples/data/E4_0.raw
+Result:   6 E/E 4/4  0.000/-8.820
+Result:   6 E/E 4/4  0.000/1.880
+Result:   6 E/E 4/4  0.000/1.938
+Result:   6 E/E 4/4  0.000/2.807
+Result:   6 E/E 4/4  0.000/1.626
+Result:   6 E/E 4/4  0.000/1.355
+Result:   6 E/E 4/4  0.000/1.644
+Result:   6 E/E 4/4  0.000/1.573
+Result:   6 E/E 4/4  0.000/3.175
+Result:   6 E/E 4/4  0.000/1.421
+Result:   6 E/E 4/4  0.000/1.426
+Result:   6 E/E 4/4  0.000/1.553
+Result:   6 E/E 4/4  0.000/1.442
+Result:   6 E/E 4/4  0.000/1.092
+Detector Configuration:  1024  256 10.000  0.300 Yin
+Test case   1 E/2  0.000 examples/data/E2_0.raw
+Test case   2 A/2  0.000 examples/data/A2_0.raw
+Test case   3 D/3  0.000 examples/data/D3_0.raw
+Test case   4 G/3  0.000 examples/data/G3_0.raw
+Test case   5 B/3  0.000 examples/data/B3_0.raw
+Test case   6 E/4  0.000 examples/data/E4_0.raw

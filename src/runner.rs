@@ -8,18 +8,20 @@ use crate::detector::yin::YINDetector;
 use crate::detector::PitchDetector;
 use crate::note_detection_result::NoteDetectionResult;
 use crate::Pitch;
-use jack::{AudioIn, Client, Control, Port, ProcessHandler, ProcessScope};
-use ringbuf::traits::{Consumer, Observer, Producer};
-use ringbuf::HeapRb;
-use std::sync::{mpsc, Arc, Mutex};
+use jack::{
+    AsyncClient, AudioIn, Client, ClientOptions, Control, Port, ProcessHandler, ProcessScope,
+};
+use std::error::Error;
+use std::fmt::{self, Formatter};
+use std::sync::mpsc::{Receiver, Sender};
+use std::sync::{Arc, Mutex};
 use std::thread::{self, JoinHandle};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
-const RING_BUFFER_CAPACITY: usize = 2_048_000;
 const SLEEP_MS: u64 = 300;
 
 /// Handle Jackd notifications.
-struct JackNotifications;
+pub struct JackNotifications;
 impl jack::NotificationHandler for JackNotifications {
     // Accept most defaults
 
@@ -32,158 +34,196 @@ impl jack::NotificationHandler for JackNotifications {
 
 /// This is passed to Jackd.  The shared ring buffer is filled with
 /// audio data for periodically passing to the pitch detector
-struct JackProcessHandlerRB {
+pub struct JackProcessHandlerPD {
     capture_port: Port<AudioIn>,
-    ring_buffer: Arc<Mutex<HeapRb<f32>>>,
+    tx: Sender<f32>,
 }
 
-impl ProcessHandler for JackProcessHandlerRB {
+impl ProcessHandler for JackProcessHandlerPD {
     /// Call back for Jack to put audio data n the ring bufer
-    fn process(&mut self, _: &Client, ps: &ProcessScope) -> jack::Control {
+    fn process(&mut self, c: &Client, ps: &ProcessScope) -> jack::Control {
         let buffer = self.capture_port.as_slice(ps);
-
-        // Push all available samples to the ring buffer
-        let rb_guard = self.ring_buffer.lock().unwrap();
-        let mut rb = rb_guard;
-        let mut source_iter = buffer.iter().copied();
-        let pushed_count = rb.push_iter(&mut source_iter);
-
-        if pushed_count < buffer.len() {
-            eprintln!(
-                "Ring buffer full, dropped {} samples",
-                buffer.len() - pushed_count
-            );
+        for b in buffer {
+            if let Err(err) = self.tx.send(*b) {
+                eprintln!(
+		    "Error pitch_detector/runner: Cannot send data from Jack client: {}.  Error: {err}",
+		    c.name()
+		);
+                return jack::Control::Quit;
+            }
         }
         jack::Control::Continue
     }
 }
 
+impl JackProcessHandlerPD {}
+
 /// The meta data the detector needs
+#[derive(Debug, Clone)]
 pub enum Detector {
     McLeod,
     AutoCorrelation,
     Yin,
 }
-pub struct DetectorCfg<T> {
-    pub sample_rate: usize,
-    pub size: usize,
+#[derive(Debug, Clone)]
+pub struct DetectorCfg {
+    pub sample_rate: u32,
+    pub size: usize, // Number of samples to use to detect pitch
     pub padding: usize,
-    pub power_threshold: T,
-    pub clarity_threshold: T,
+    pub power_threshold: f32,
+    pub clarity_threshold: f32,
     pub detector: Detector,
-    pub sample_size: usize,
+}
+
+impl fmt::Display for DetectorCfg {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
+        write!(
+            f,
+            "{:>6} {:>6} {:>6} {:>6.3} {:>6.3} {:?}",
+            self.sample_rate,
+            self.size,
+            self.padding,
+            self.power_threshold,
+            self.clarity_threshold,
+            self.detector,
+        )
+    }
 }
 
 /// Get the pitch
-fn my_get_pitch<T: crate::float::Float>(
-    signal: &[T],
-    detector: &mut dyn PitchDetector<T>,
-    cfg: &DetectorCfg<T>,
-) -> Option<Pitch<T>> {
+fn my_get_pitch(
+    signal: &[f32],
+    detector: &mut dyn PitchDetector<f32>,
+    sample_rate: u32,
+    power_threshold: f32,
+    clarity_threshold: f32,
+) -> Option<Pitch<f32>> {
     detector.get_pitch(
         signal,
-        cfg.sample_rate,
-        cfg.power_threshold,
-        cfg.clarity_threshold,
+        sample_rate as usize,
+        power_threshold,
+        clarity_threshold,
     )
 }
 
-/// Get data from a jack port and analyze its pitch.  Send pitch data,
-/// continuously, to `sender`
-pub fn pitch_detection_run<T>(
-    sender: mpsc::Sender<NoteDetectionResult>,
-    input: &str,
-    detector_cfg: DetectorCfg<T>,
-    client: Client,
-) -> JoinHandle<()>
-where
-    T: crate::float::Float + Into<f32> + From<f32> + std::iter::Sum,
-{
-    let connect_port = input.to_string();
-    thread::spawn(move || {
-        // Create ring buffer with specified capacity
-        let ring_buffer = Arc::new(Mutex::new(HeapRb::<f32>::new(RING_BUFFER_CAPACITY)));
-        let ring_buffer_clone = Arc::clone(&ring_buffer);
+/// Start the Jack client thread that will provide audio to the pitch
+/// detector.  The audio data is received on `src_port` and sent via
+/// `tx`
+pub fn start_jack(
+    tx: Sender<f32>,
+    src_port: &str,
+) -> Result<AsyncClient<JackNotifications, JackProcessHandlerPD>, Box<dyn Error>> {
+    let client_name = "qzn3t_pitch_detector";
+    let port_name = "input";
 
-        // Register capture port
-        let capture_port = client.register_port("input", AudioIn::default()).unwrap();
-        let capture_port_name = capture_port.name().unwrap();
+    let (client, _) = jack::Client::new(client_name, ClientOptions::NO_START_SERVER).unwrap();
+    let capture_port = client.register_port(port_name, AudioIn::default()).unwrap();
+    // Connect the audio ports
+    let dst_port = capture_port
+        .name()
+        .expect("Error pitch_detection/runner start_jack: Cannot get dst_port");
+    let handler = JackProcessHandlerPD { capture_port, tx };
+    let ac = client.activate_async(JackNotifications, handler).unwrap();
 
-        // Activate the client with our custom handler
-        let handler = JackProcessHandlerRB {
-            capture_port,
-            ring_buffer: ring_buffer_clone,
-        };
-        let active_client = client.activate_async(JackNotifications, handler).unwrap();
+    if let Err(err) = ac
+        .as_client()
+        .connect_ports_by_name(src_port, dst_port.as_str())
+    {
+        panic!("Error tuner: Connecting {src_port} -> {dst_port}  failed. {err}",);
+    }
 
-        // A port to connect to the tuner was specified so make the connection
-        let client = active_client.as_client();
-        let capture_port = client.port_by_name(&capture_port_name).unwrap();
-        let c_port = match client.port_by_name(connect_port.as_str()) {
-            Some(p) => p,
-            None => panic!(
-                "Error tuner: start_jack_thread: Conection port: {connect_port} is unavailable.  "
-            ),
-        };
-        if let Err(err) = client.connect_ports(&c_port, &capture_port) {
-            panic!(
-                "Error tuner: Connecting {:?} -> {:?}  failed. {err}",
-                c_port, capture_port,
-            );
-        }
+    Ok(ac)
+}
 
+/// Get data from from Jack on `rx` jack port and analyze its pitch.
+/// Send pitch data, continuously, on `tx`.  The configuration for the
+/// pitch detector is in `detector_cfg` and `kill_switch` is used to
+/// stop the process
+pub fn pitch_detection_run(
+    tx: Sender<NoteDetectionResult>,
+    rx: Receiver<f32>,
+    detector_cfg: &DetectorCfg,
+    kill_switch: Arc<Mutex<bool>>,
+) -> JoinHandle<()> {
+    let detector = detector_cfg.detector.clone();
+    let buf_sz = detector_cfg.size;
+    let padding = detector_cfg.padding;
+    let sample_rate = detector_cfg.sample_rate;
+    let power_threshold = detector_cfg.power_threshold;
+    let clarity_threashold = detector_cfg.clarity_threshold;
+    let jh = thread::spawn(move || {
         let sleep_ms = SLEEP_MS;
-        let mut detector: Box<dyn PitchDetector<T>> = match detector_cfg.detector {
-            Detector::McLeod => {
-                Box::new(McLeodDetector::new(detector_cfg.size, detector_cfg.padding))
-            }
-            Detector::AutoCorrelation => Box::new(AutocorrelationDetector::new(
-                detector_cfg.size,
-                detector_cfg.padding,
-            )),
-            Detector::Yin => Box::new(YINDetector::new(detector_cfg.size, detector_cfg.padding)),
+
+        // The pitch detector to use
+        let mut detector: Box<dyn PitchDetector<f32>> = match detector {
+            Detector::McLeod => Box::new(McLeodDetector::new(buf_sz, padding)),
+            Detector::AutoCorrelation => Box::new(AutocorrelationDetector::new(buf_sz, padding)),
+            Detector::Yin => Box::new(YINDetector::new(buf_sz, padding)),
         };
 
-        let mut samples = Vec::with_capacity(detector_cfg.sample_size);
+        // Buffer to hold samples.
+        let mut samples = Vec::with_capacity(buf_sz);
         loop {
-            let sample_interval = Duration::from_millis(sleep_ms);
-            thread::sleep(sample_interval);
-
-            // Get available samples from the ring buffer
-            samples.resize(detector_cfg.sample_size, 0.0);
-            let mut rb_guard = ring_buffer.lock().unwrap();
-            let available = (*rb_guard).occupied_len();
-            if available < detector_cfg.sample_size {
-                continue;
-            }
-            let sz_popped = (*rb_guard).pop_slice(&mut samples);
-            if sz_popped != detector_cfg.sample_size {
-                eprintln!("Error pitch_detector: There were {sz_popped} bytes popped from ring buffer.  There should have been {}.  Available is: {available}", detector_cfg.sample_size);
-                continue;
+            let top_of_loop = Instant::now();
+            {
+                // Check for exit condition.
+                if *kill_switch.lock().unwrap() {
+                    break;
+                }
             }
 
-            // Empty the buffer now it has been used
-            (*rb_guard).clear();
-            drop(rb_guard);
+            // Fill the buffer.  Need to ensure that the latest data is
+            // being used so read data from `rx` until there have been
+            // `buf_sz` bytes read and there are no more to read from
+            // `rx`
+            samples.clear();
+            loop {
+                let all_values: Vec<f32> = rx.try_iter().collect();
+                samples.extend_from_slice(&all_values);
+                if samples.len() >= buf_sz {
+                    samples = samples[samples.len() - buf_sz..].to_vec();
+                    break;
+                }
+            }
 
             // Do the deed with the samples from Jack and send the
             // result back to the caller
-            let converted_samples: Vec<T> = samples.iter().map(|&x| x.into()).collect();
-            let pitch = my_get_pitch(&converted_samples, &mut *detector, &detector_cfg);
+            let pitch = my_get_pitch(
+                &samples,
+                &mut *detector,
+                sample_rate,
+                power_threshold,
+                clarity_threashold,
+            );
 
             if let Some(pitch) = pitch {
                 let freq = pitch.frequency;
                 let clarity = pitch.clarity;
                 let ndr: NoteDetectionResult =
-                    match NoteDetectionResult::from_freq_clarity(freq.into(), clarity.into()) {
+                    match NoteDetectionResult::from_freq_clarity(freq, clarity) {
                         Ok(ndr) => ndr,
                         Err(err) => {
                             eprintln!("Error pitch-detection: {err}");
                             continue;
                         }
                     };
-                sender.send(ndr).unwrap();
+                if let Err(err) = tx.send(ndr) {
+                    eprintln!("Error pitch_detection/runner/pitch_detection_run: {err}");
+                    break;
+                }
+            }
+
+            // Keep the speed of detection
+            let sleep = sleep_ms as i64 - top_of_loop.elapsed().as_millis() as i64;
+            if sleep > 0 {
+                thread::sleep(Duration::from_millis(sleep as u64));
+            } else if sleep < 0 {
+                eprintln!(
+                    "DBG pitch_detection/runner: Detection loop over ran: {}ms of {sleep_ms}ms",
+                    -sleep
+                );
             }
         }
-    })
+    });
+    jh
 }

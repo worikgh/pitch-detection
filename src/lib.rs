@@ -46,4 +46,5 @@ pub mod detector;
 pub mod float;
 pub mod note_detection_result;
 pub mod runner;
+pub mod rx_proxy;
 pub mod utils;

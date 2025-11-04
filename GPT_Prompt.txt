@@ -1,0 +1,53 @@
+
+I have some data of the form:
+
+```
+Detector Configuration:  1024  256  1.000  0.300 McLeod
+Test case   1 E/2  0.000 examples/data/E2_0.raw
+Result:   1 E/E 2/2  0.000/ 0.572
+Result:   1 E/E 2/2  0.000/ 2.272
+Result:   1 E/F 2/3  0.000/-44.262
+Test case   2 A/2  0.000 examples/data/A2_0.raw
+Result:   2 A/A 2/3  0.000/ 0.312
+Result:   2 A/A 2/2  0.000/ 0.473
+Test case   3 D/3  0.000 examples/data/D3_0.raw
+Result:   3 D/D 3/4  0.000/-32.501
+Result:   3 D/D 3/4  0.000/10.215
+Test case   4 G/3  0.000 examples/data/G3_0.raw
+Result:   4 G/C# 3/5  0.000/-39.867
+Result:   4 G/G 3/3  0.000/ 5.782
+Result:   4 G/C# 3/5  0.000/21.926
+Result:   4 G/G 3/3  0.000/ 7.290
+Test case   5 B/3  0.000 examples/data/B3_0.raw
+Result:   5 B/B 3/4  0.000/11.848
+Result:   5 B/B 3/4  0.000/11.090
+Test case   6 E/4  0.000 examples/data/E4_0.raw
+Result:   6 E/G 4/5  0.000/10.363
+Result:   6 E/G 4/5  0.000/15.380
+Result:   6 E/G 4/5  0.000/-1.346
+Result:   6 E/E 4/4  0.000/-5.903
+Result:   6 E/E 4/4  0.000/ 1.583
+Detector Configuration:  1024  256  1.000  0.500 McLeod
+Test case   1 E/2  0.000 examples/data/E2_0.raw
+Test case   2 A/2  0.000 examples/data/A2_0.raw
+Result:   2 A/A 2/2  0.000/ 2.406
+Result:   2 A/A 2/2  0.000/ 2.688
+Result:   2 A/A# 2/4  0.000/ 0.300
+:
+:
+```
+
+A line that starts "Detector Cofiguration" the four numbers and the word define the confguration being tested.
+
+Lines starting with "Test case" define a test, the first number is an index.  The "E/2"  defined the note and the octave respectively
+
+Lines starting with "Result" have the following fields (in order)
+
+* Index.  Matches the "Test case" line
+* <Actual>/<Detected> note.
+* <Actual>/<Detected> Octave
+* <Actual>/<Detected> cents
+
+I need an R programme that puts this data in data.frames for analysis
+
+

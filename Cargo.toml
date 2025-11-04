@@ -15,6 +15,7 @@ readme = "README.md"
 jack = "0.13.3"
 ringbuf = "0.4.8"
 rustfft = { version = "6.0.1", default-features = false }
+clap = { version = "4.5.47", features = ["derive"] }
 
 [dev-dependencies]
 criterion = "0.3"
@@ -29,3 +30,6 @@ harness = false
 name = "detect_pitch"
 doc = false  # optional
 
+[[example]]
+name = "tester"
+doc = false  # optional

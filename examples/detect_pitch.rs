@@ -1,25 +1,28 @@
 use pitch_detection::note_detection_result::NoteDetectionResult;
-use pitch_detection::runner::{pitch_detection_run, Detector, DetectorCfg};
-use std::sync::mpsc;
+use pitch_detection::runner::{pitch_detection_run, start_jack, Detector, DetectorCfg};
+use std::sync::{mpsc, Arc, Mutex};
 
 fn main() {
-    // Make a client to do detecting
-    let (client, _status) =
-        jack::Client::new("qzn3t_detect_pitch", jack::ClientOptions::NO_START_SERVER).unwrap();
-    let (tx, rx) = mpsc::channel::<NoteDetectionResult>();
+    let (tx_f32, rx_f32) = mpsc::channel::<f32>();
+    let (tx_ndr, rx_ndr) = mpsc::channel::<NoteDetectionResult>();
+
+    let ac = match start_jack(tx_f32, "system:capture_1") {
+        Ok(ac) => ac,
+        Err(err) => panic!("Error detect_pitch: Failed to start jack for pitch detection: {err}"),
+    };
+
+    let kill_switch = Arc::new(Mutex::new(false));
     let detector_cfg = DetectorCfg {
-        sample_rate: client.sample_rate(),
+        sample_rate: ac.as_client().sample_rate() as u32,
         size: 10240,
         padding: 512,
         power_threshold: 5.0,
         clarity_threshold: 0.7,
         detector: Detector::McLeod,
-        sample_size: 10240,
     };
-
-    let jh = pitch_detection_run(tx, "system:capture_1", detector_cfg, client);
+    let jh = pitch_detection_run(tx_ndr, rx_f32, &detector_cfg, kill_switch.clone());
     loop {
-        let ndr = match rx.recv() {
+        let ndr = match rx_ndr.recv() {
             Ok(ndr) => ndr,
             Err(err) => {
                 eprintln!("DBG detect_pitch: Main loop failed with error: {err}");
@@ -38,5 +41,6 @@ fn main() {
             ndr.note_name, ndr.octave, ndr.cents, ndr.clarity,
         );
     }
+    _ = ac.deactivate();
     _ = jh.join();
 }
