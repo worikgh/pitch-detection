@@ -143,7 +143,7 @@ pub fn pitch_detection_run(
     tx: Sender<NoteDetectionResult>,
     rx: Receiver<f32>,
     detector_cfg: &DetectorCfg,
-    kill_switch: Arc<Mutex<bool>>,
+    kill_switch: Option<Arc<Mutex<bool>>>,
 ) -> JoinHandle<()> {
     let detector = detector_cfg.detector.clone();
     let buf_sz = detector_cfg.size;
@@ -165,10 +165,10 @@ pub fn pitch_detection_run(
         let mut samples = Vec::with_capacity(buf_sz);
         loop {
             let top_of_loop = Instant::now();
-            {
+            if let Some(kill_switch) = &kill_switch {
                 // Check for exit condition.
                 if *kill_switch.lock().unwrap() {
-                    break;
+                    return;
                 }
             }
 
@@ -178,6 +178,12 @@ pub fn pitch_detection_run(
             // `rx`
             samples.clear();
             loop {
+                if let Some(kill_switch) = &kill_switch {
+                    // Check for exit condition.
+                    if *kill_switch.lock().unwrap() {
+                        return;
+                    }
+                }
                 let all_values: Vec<f32> = rx.try_iter().collect();
                 samples.extend_from_slice(&all_values);
                 if samples.len() >= buf_sz {

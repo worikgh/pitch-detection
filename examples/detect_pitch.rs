@@ -20,7 +20,7 @@ fn main() {
         clarity_threshold: 0.7,
         detector: Detector::McLeod,
     };
-    let jh = pitch_detection_run(tx_ndr, rx_f32, &detector_cfg, kill_switch.clone());
+    let jh = pitch_detection_run(tx_ndr, rx_f32, &detector_cfg, Some(kill_switch.clone()));
     loop {
         let ndr = match rx_ndr.recv() {
             Ok(ndr) => ndr,

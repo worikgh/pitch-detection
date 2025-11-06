@@ -273,7 +273,7 @@ fn main() {
                             tx_ndr,
                             rx_p,
                             &detector_cfg,
-                            pitch_detector_kill_switch.clone(),
+                            Some(pitch_detector_kill_switch.clone()),
                         );
 
                         for test_case in test_cache.iter() {
