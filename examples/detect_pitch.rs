@@ -12,12 +12,24 @@ fn main() {
     };
 
     let kill_switch = Arc::new(Mutex::new(false));
+    // Results from `examples/tester.rs` for quite distorted guitar samples:
+    // |actual_note | frequency| match|
+    // |:-----------|---------:|-----:|
+    // |E/2         |        13|  0.77|
+    // |A/2         |        13|  0.92|
+    // |D/3         |        12|  1.00|
+    // |G/3         |        11|  1.00|
+    // |B/3         |        14|  0.14|
+    // |E/4         |        14|  0.64|
+    //
+    // Minimum: 0.14  Mean: 0.75
+    // Info: McLeod size/4096 power/10 clarity/0.5 padding/512
     let detector_cfg = DetectorCfg {
         sample_rate: ac.as_client().sample_rate() as u32,
-        size: 10240,
+        size: 4096,
         padding: 512,
-        power_threshold: 5.0,
-        clarity_threshold: 0.7,
+        power_threshold: 10.0,
+        clarity_threshold: 0.5,
         detector: Detector::McLeod,
     };
     let jh = pitch_detection_run(tx_ndr, rx_f32, &detector_cfg, Some(kill_switch.clone()));
