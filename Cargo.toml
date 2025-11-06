@@ -1,15 +1,15 @@
 [package]
-name = "pitch-detection"
-description = "A collection of algorithms to determine the pitch of a sound sample."
-version = "0.3.0"
 authors = ["Alessandro Genova <ales.genova@gmail.com>"]
-edition = "2021"
-license = "MIT/Apache-2.0"
-homepage = "https://github.com/alesgenova/pitch-detection"
-repository = "https://github.com/alesgenova/pitch-detection"
-keywords = ["pitch", "frequency", "detection", "sound"]
 categories = ["algorithms", "multimedia::audio", "no-std"]
+description = "A collection of algorithms to determine the pitch of a sound sample."
+edition = "2021"
+homepage = "https://github.com/alesgenova/pitch-detection"
+keywords = ["pitch", "frequency", "detection", "sound"]
+license = "MIT/Apache-2.0"
+name = "pitch-detection"
 readme = "README.md"
+repository = "https://github.com/alesgenova/pitch-detection"
+version = "0.4.0"
 
 [dependencies]
 jack = "0.13.3"
