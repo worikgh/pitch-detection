@@ -1,7 +1,17 @@
-library(stringr)
+## Take the output of `tester.rs` and analyse it to find the best
+## cnfigurations.  The best configurations get a result for all
+## strings, and are ordered first by the minimum for the proportion
+## that are "in tune" (10.0 < detected cents < 10.0, the `match`
+## column) over each string, then by the mean over all strings.  It
+## turns out that many different configurations get the same result
+## for the B/3 string
+
 library(dplyr)
-library(tidyr)
 library(kableExtra)
+library(knitr)
+library(purrr)
+library(stringr)
+library(tidyr)
 
 parse_music_data <- function(file_path) {
   # Read the file
@@ -47,13 +57,13 @@ parse_music_data <- function(file_path) {
     }else if (str_detect(line, "^Result:")) {
       # Parse Result line
       result_parts <- str_split(line, "\\s+")[[1]]
-      print(c(">Result: ",  line))
+
       # Extract note information (e.g., "E/E")
       note_info <- result_parts[3]
       note_parts <- str_split(note_info, "/")[[1]]
       actual_note <- note_parts[1]
       detected_note <- note_parts[2]
-      print(c(">Result: notes: ", note_parts, actual_note, detected_note))
+
 
       # Extract octave information (e.g., "2/2")
       octave_info <- result_parts[4]
@@ -148,196 +158,82 @@ test_cases <- data_frames$test_cases
 results <- data_frames$results
 analysis_data <- data_frames$analysis_data
 
-## # Print the structure of each data frame
-## print("Configurations:")
-## print(configurations)
+## Return a list summarising the quality of a configuration
+cfg_summary <- function(config_id) {
+    ## Get the configuration for this configuration
+    cc <- data_frames$configurations[cfg$config_id == config_id, ]
 
-## print("Test Cases:")
-## print(test_cases)
+    ## The results for this configuration
+    rr <- data_frames$results[r$config_id == config_id,]
 
-## print("Results:")
-## print(results)
+    if(nrow(rr) == 0) {
+        return (list(data.frame(),  -1 ))
+    }
+    ## Notes combined with octave as key    
+    rr$actual_key <- paste0(rr$actual_note, "/", rr$actual_octave)
 
-## print("Analysis Data (combined):")
-## print(analysis_data)
+    ## Calculate how accurate each note's estimation is
+    rr$match <- with(rr,
+                     actual_note == detected_note &
+                     actual_octave == detected_octave &
+                     abs(detected_cents) < 10.0
+                     )
+    score <- aggregate(match ~ actual_key, data = rr, FUN = mean)
+    names(score)[1] <- "actual_note"
 
-# You can now analyze the data, for example:
-# - Calculate detection accuracy
-# - Analyze cents deviation by note and configuration
-# - Compare different detector configurations
-generate_report <- function(data_frames) {
-  analysis_data <- data_frames$analysis_data
+    ## The actual notes reorted on by this configuration
+    notes <- paste(rr$actual_note, rr$actual_octave, sep = "/")
+    levels_order <- c("E/2", "A/2", "D/3", "G/3", "B/3", "E/4")
+    notes_factor <- factor(notes, levels = levels_order)
 
-  # Report for each configuration
-  config_report <- analysis_data %>%
-    group_by(config_id, size, padding, power, clarity, method) %>%
-    summarise(
-      # Basic counts
-      total_results = n(),
+    ## The occurence of the notes.  It is crucial all notes (strings)
+    ## are represented fairly
+    freq <- as.data.frame(table(notes_factor))
+    names(freq) <-  c("actual_note","frequency")
+    merged <- merge(freq, score, by = "actual_note", all.x = TRUE)
+    merged$actual_note <- factor(merged$actual_note, levels = levels_order)
+    merged <- merged[order(merged$actual_note), ]
+    row.names(merged) <- NULL
 
-      # Note detection accuracy
-      incorrect_note_detections = sum(actual_note.x != detected_note),
-      correct_note_detections = sum(actual_note.x == detected_note),
-      accuracy_rate = correct_note_detections / total_results,
+    ## The threashold
+    score <- min(merged$match, na.rm = FALSE)
+    if(is.na(score)) {
+        score <- -1
+    }
+    mean_score <- mean(merged$match, na.rm = FALSE)
+    if(is.na(mean_score)) {
+        mean_score <- -1
+    }
+    params <- paste0(cc$method," size/", cc$size, " power/", cc$power,  " clarity/", cc$clarity,  " padding/", cc$padding )
+    list(merged, score, mean_score, params)
+}
+ids <- data_frames$configurations$config_id
+results <- lapply(ids, cfg_summary) 
+ get_or_na <- function(x, i) if (length(x) >= i) x[[i]] else NA_real_
 
-      # Statistical properties of detected cents
-      cents_min = min(detected_cents, na.rm = TRUE),
-      cents_max = max(detected_cents, na.rm = TRUE),
-      cents_mean = mean(detected_cents, na.rm = TRUE),
-      cents_median = median(detected_cents, na.rm = TRUE),
-      cents_variance = var(detected_cents, na.rm = TRUE),
-      cents_sd = sd(detected_cents, na.rm = TRUE),
-      cents_q1 = quantile(detected_cents, 0.25, na.rm = TRUE),
-      cents_q3 = quantile(detected_cents, 0.75, na.rm = TRUE),
+v2 <- sapply(results, get_or_na, 2)
+v3 <- sapply(results, get_or_na, 3)
 
-      .groups = 'drop'
-    )
+# put NAs last
+ord <- order(is.na(v2), v2, is.na(v3), v3)
+results_sorted <- results[ord]
 
-  # Detailed breakdown by note for each configuration
-  note_breakdown <- analysis_data %>%
-    group_by(config_id, actual_note.x) %>%
-    summarise(
-      total_tests = n(),
-      incorrect_detections = sum(actual_note.x != detected_note),
-      accuracy_rate = sum(actual_note.x == detected_note) / n(),
+print_result <- function(x, index = NULL, title = NULL, digits = 2) {
+  if (!is.null(title)) cat("==", title, "==\n")
+  if (!is.null(index)) cat("Item:", index, "\n")
 
-      # Cents statistics for this note
-      cents_mean = mean(detected_cents, na.rm = TRUE),
-      cents_sd = sd(detected_cents, na.rm = TRUE),
-      cents_min = min(detected_cents, na.rm = TRUE),
-      cents_max = max(detected_cents, na.rm = TRUE),
-
-      .groups = 'drop'
-    )
-
-  # Incorrect detections breakdown (what was detected instead)
-  incorrect_detections <- analysis_data %>%
-    filter(actual_note.x != detected_note) %>%
-    group_by(config_id, actual_note.x, detected_note) %>%
-    summarise(
-      count = n(),
-      avg_cents_error = mean(detected_cents, na.rm = TRUE),
-      .groups = "drop"
-    )
-
-  (list(
-    config_summary = config_report,
-    note_breakdown = note_breakdown,
-    incorrect_detections = incorrect_detections
-  ))
+  print(kable(x[[1]], digits = digits, align = "lrr"))
+  cat(sprintf("\nMinimum: %.*f  Mean: %.*f\n", digits, as.numeric(x[[2]]), digits, as.numeric(x[[3]])))
+  cat("Info:", as.character(x[[4]]), "\n")
+  cat(strrep("-", 60), "\n\n")
 }
 
-# Generate the report
-report <- generate_report(data_frames)
-
-# Print the report in a nice format
-cat("=== MUSIC DETECTION ANALYSIS REPORT ===\n\n")
-
-# Configuration Summary
-cat("## CONFIGURATION SUMMARY\n")
-print(report$config_summary %>%
-        select(config_id, size, padding, power, clarity, method, total_results,
-               correct_note_detections, incorrect_note_detections,
-               accuracy_rate,
-               cents_mean, cents_median, cents_sd, cents_min, cents_max))
-cat("\n\n")
-
-# Detailed note breakdown for each configuration
-cat("## NOTE-BY-NOTE BREAKDOWN\n")
-for (config_id in unique(report$note_breakdown$config_id)) {
-  cat(sprintf("\n### Configuration %d\n", config_id))
-  config_notes <- report$note_breakdown %>%
-    filter(config_id == !!config_id) %>%
-    select(actual_note.x, total_tests, incorrect_detections, accuracy_rate,
-           cents_mean, cents_sd)
-  print(config_notes)
-  cat("\n")
-}
-
-# Incorrect detections analysis
-cat("## INCORRECT DETECTION ANALYSIS\n")
-for (config_id in unique(report$incorrect_detections$config_id)) {
-  cat(sprintf("\n### Configuration %d - Incorrect Detections\n", config_id))
-  incorrect_config <- report$incorrect_detections %>%
-    filter(config_id == !!config_id) %>%
-    arrange(actual_note.x, desc(count))
-
-  if (nrow(incorrect_config) > 0) {
-    print(incorrect_config)
-  } else {
-    cat("No incorrect detections for this configuration.\n")
+# Iterate over all list elements and print a pretty block for each.
+# Adjust indices if your list contains other types or structure.
+walk2(results_sorted, seq_along(results_sorted), ~{
+  # Only print elements that follow the expected structure (a list of 4)
+  if (is.list(.x) && length(.x) >= 4) {
+    print_result(.x, index = .y)
   }
-  cat("\n")
-}
+})
 
-# Additional detailed statistical summary
-cat("## DETAILED STATISTICAL SUMMARY\n")
-for (config_id in unique(report$config_summary$config_id)) {
-  config_data <- analysis_data %>% filter(config_id == !!config_id)
-  config_info <- report$config_summary %>% filter(config_id == !!config_id)
-
-  cat(sprintf("\n### Configuration %d (%s)\n",
-              config_id,
-              paste(config_info$size, config_info$padding, config_info$power,
-                    config_info$clarity, config_info$method)))
-
-  cat(sprintf("Total results: %d\n", config_info$total_results))
-  cat(sprintf("Note detection accuracy: %.2f%%\n",
-              config_info$accuracy_rate * 100))
-  cat(sprintf("Cents statistics (all detections):\n"))
-  cat(sprintf("  Mean: %.3f, Median: %.3f, SD: %.3f\n",
-              config_info$cents_mean, config_info$cents_median,
-              config_info$cents_sd))
-  cat(sprintf("  Range: [%.3f, %.3f], IQR: [%.3f, %.3f]\n",
-              config_info$cents_min, config_info$cents_max,
-              config_info$cents_q1, config_info$cents_q3))
-  cat(sprintf("  Variance: %.3f\n", config_info$cents_variance))
-
-  # Cents statistics for correct detections only
-  correct_cents <- config_data %>%
-    filter(actual_note.x == detected_note) %>%
-    pull(detected_cents)
-
-  if (length(correct_cents) > 0) {
-    cat(sprintf("Cents statistics (correct detections only):\n"))
-    cat(sprintf("  Mean: %.3f, Median: %.3f, SD: %.3f\n",
-                mean(correct_cents), median(correct_cents), sd(correct_cents)))
-    cat(sprintf("  Range: [%.3f, %.3f]\n", min(correct_cents),
-                max(correct_cents)))
-  }
-  cat("\n")
-}
-
-# Optional: Create visualizations
-## if (nrow(analysis_data) > 0) {
-##   library(ggplot2)
-
-##   # Plot 1: Accuracy by configuration
-##   p1 <- ggplot(report$config_summary, aes(x = factor(config_id),
-##                                           y = accuracy_rate)) +
-##     geom_col(fill = "steelblue") +
-##     labs(title = "Note Detection Accuracy by Configuration",
-##          x = "Configuration ID", y = "Accuracy Rate") +
-##     theme_minimal()
-##   print(p1)
-
-##   # Plot 2: Cents distribution by configuration
-##   p2 <- ggplot(analysis_data, aes(x = factor(config_id), y = detected_cents)) +
-##     geom_boxplot(fill = "lightgreen") +
-##     labs(title = "Detected Cents Distribution by Configuration",
-##          x = "Configuration ID", y = "Cents") +
-##     theme_minimal()
-##   print(p2)
-
-##   # Plot 3: Cents distribution by actual note (for correct detections)
-##   correct_detections <- analysis_data %>% filter(actual_note.x == detected_note)
-##   if (nrow(correct_detections) > 0) {
-##     p3 <- ggplot(correct_detections, aes(x = actual_note.x, y = detected_cents)) +
-##       geom_boxplot(fill = "lightcoral") +
-##       facet_wrap(~config_id) +
-##       labs(title = "Cents Distribution by Note (Correct Detections Only)",
-##            x = "Actual Note", y = "Cents") +
-##       theme_minimal()
-##     print(p3)
-##   }
-## }
