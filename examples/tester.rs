@@ -187,8 +187,8 @@ fn main() {
         let bytes = match fs::read(path) {
             Ok(b) => b,
             Err(err) => panic!(
-                "Error pitch_detection/tester: Failed to load samples. Path: {path}  Error: {err}"
-            ),
+		"Error qzn3t_pitch_detection/tester: Failed to load samples. Path: {path}  Error: {err}"
+	    ),
         };
         let these_samples: Vec<f32> = bytes
             .chunks_exact(4)
@@ -212,7 +212,7 @@ fn main() {
     // Output audio port
     let output = client
         .register_port("outout", AudioOut::default())
-        .expect("Error pitch_detection: Output port");
+        .expect("Error qzn3t_pitch_detection: Output port");
     let output_name = output.name().unwrap();
 
     let out_process = OutProcess {
