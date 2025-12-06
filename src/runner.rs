@@ -18,7 +18,7 @@ use std::sync::{Arc, Mutex};
 use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
 
-const SLEEP_MS: u64 = 300;
+const SLEEP_MS: u64 = 400;
 
 /// Handle Jackd notifications.
 pub struct JackNotifications;
